@@ -26,3 +26,11 @@
 
  $string['title'] = 'Grades Grafics Generator';
  $string['pluginname'] = 'Grades Grafics';
+ $string['teacher'] = 'Teacher:';
+ $string['student'] = 'Student:';
+ $string['category'] = 'Category:';
+$string['course'] = 'Course:';
+$string['grade'] = 'Grade:';
+$string['ungraded'] = 'Not Rated';
+
+ 

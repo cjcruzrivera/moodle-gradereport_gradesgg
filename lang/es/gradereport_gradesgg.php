@@ -26,3 +26,9 @@
 
 $string['title'] = 'Generador de Graficas de Notas';
 $string['pluginname'] = 'Graficas de Notas';
+$string['student'] = 'Estudiante:';
+$string['teacher'] = 'Docente:';
+$string['category'] = 'Categoria:';
+$string['course'] = 'Curso:';
+$string['grade'] = 'Nota:';
+$string['ungraded'] = 'No calificado';
