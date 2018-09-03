@@ -49,7 +49,7 @@ function isTeacher($context, $USER)
  * @see generate_student_info($courseid, $userid)
  * @param integer $courseid
  * @param integer $userid
- * @return string html course info report
+ * @return stdClass course info report
  */
 function generate_student_info($courseid, $userid)
 {
@@ -75,7 +75,7 @@ function generate_student_info($courseid, $userid)
  * @see generate_category_student_info($category, $userid)
  * @param stdClass $category
  * @param integer $userid
- * @return stdClassy html grade category info report
+ * @return stdClass grade category info report
  */
 
 function generate_category_student_info($category, $userid)
@@ -112,20 +112,146 @@ function generate_category_student_info($category, $userid)
     }
 
     if ($category->is_course_category()) {
-        $info->html_structure = "<div class = 'container' style='background:#daddfb'>
+        $info->html_structure = "<div class = 'container grafics'>
                     <h4><b>" . get_string('course', 'gradereport_gradesgg') . "  </h4><h2>$name_category</h2><hr></b>
-                    <h4>". get_string('grade', 'gradereport_gradesgg')." $item_category_grade->finalgrade</h4>
+                    <h4 id='grade'>" . get_string('grade', 'gradereport_gradesgg') . " $item_category_grade->finalgrade</h4>
 
                     <div class='grafica' id = 'graf_$id_category' > </div>
                 </div> ";
     } else {
-        $info->html_structure = "<div class = 'container' style='background:#daddfb'>
+        $info->html_structure = "<div class = 'container grafics'>
                    <div class = 'header'> <h4><b>" . get_string('category', 'gradereport_gradesgg') . "  </h4><h2>$name_category</h2></b>
-                    <h4>". get_string('grade', 'gradereport_gradesgg')." $item_category_grade->finalgrade</h4></div><hr>
-
-                    <div class='grafica' id = 'graf_$id_category' style='min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto'> </div>
+                    <h4 id='grade'>" . get_string('grade', 'gradereport_gradesgg') . " $item_category_grade->finalgrade</h4></div><hr>
+                    <canvas id='graf_$id_category' width='600' height='400'></canvas>
                 </div> ";
     }
 
     return $info;
+}
+
+/**
+ * This function generate teacher report
+ * @see generate_teacher_info($courseid)
+ * @param integer $courseid
+ * @return stdClass course info report
+ */
+function generate_teacher_info($courseid)
+{
+    global $CFG;
+    $url = new moodle_url($CFG->wwwroot . '/user/index.php', array('id' => $courseid));
+
+    $info = new stdClass();
+
+    $info->html_structure = "<div class= 'well well-medium'>
+                                <h3 style='margin-top:10px;'>Se muestran los estudiantes matriculados en el curso.
+                                Para consultar las graficas de cada uno,
+                                hacer click en el nombre del estudiante. <a href='$url' target='_blank'>Para gestionar los usuarios matriculados en el curso hacer click aqui </a></h3>
+                            </div>
+                            <div id='div_curso'>
+                                <img id='loading' src='static/loading.gif'>
+                            </div>";
+    $info->tableStudents = get_datatable_students_by_course($courseid);
+
+    return $info;
+}
+
+/**
+ * This function generate teacher datatable report
+ * @see get_datatable_students_by_course($courseid)
+ * @param integer $courseid
+ * @return stdClass course datatable info report
+ */
+function get_datatable_students_by_course($courseid)
+{
+
+    $default_students = $columns = array();
+    array_push($columns, array("title" => "Id", "name" => "id", "data" => "id", "class" => "hidden"));
+    array_push($columns, array("title" => "Nombre", "name" => "firstname", "data" => "firstname"));
+    array_push($columns, array("title" => "Apellido", "name" => "lastname", "data" => "lastname"));
+    array_push($columns, array("title" => "Email", "name" => "email", "data" => "email"));
+
+    $default_students = get_all_students($courseid);
+
+    $data_to_table = array(
+        "bsort" => false,
+        "data" => $default_students,
+        "columns" => $columns,
+        "select" => "false",
+        "fixedHeader" => array(
+            "header" => true,
+            "footer" => true,
+        ),
+        "language" => array(
+            "search" => "Buscar:",
+            "oPaginate" => array(
+                "sFirst" => "Primero",
+                "sLast" => "Último",
+                "sNext" => "Siguiente",
+                "sPrevious" => "Anterior",
+            ),
+            "sProcessing" => "Procesando...",
+            "sLengthMenu" => "Mostrar _MENU_ registros",
+            "sZeroRecords" => "No se encontraron resultados",
+            "sEmptyTable" => "Ningún dato disponible en esta tabla",
+            "sInfo" => "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty" => "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered" => "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix" => "",
+            "sSearch" => "Buscar:",
+            "sUrl" => "",
+            "sInfoThousands" => ",",
+            "sLoadingRecords" => "Cargando...",
+            "oAria" => array(
+                "sSortAscending" => ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending" => ": Activar para ordenar la columna de manera descendente",
+            ),
+        ),
+        "autoFill" => "true",
+        "dom" => "lfrtBip",
+        "buttons" => array(
+            array(
+                "extend" => 'print',
+                "filename" => 'Export pdf',
+                "text" => 'Imprimir',
+            ),
+            array(
+                "extend" => 'csvHtml5',
+                "filename" => 'Export csv',
+                "text" => 'CSV',
+            ),
+            array(
+                "extend" => "excel",
+                "text" => 'Excel',
+                "className" => 'buttons-excel',
+                "filename" => 'Export excel',
+                "extension" => '.xls',
+            ),
+        ),
+    );
+
+    return $data_to_table;
+
+}
+
+/**
+ * This function generate teacher datatable report
+ * @see get_all_students($courseid)
+ * @param integer $courseid
+ * @return stdClass course users info report
+ */
+function get_all_students($courseid)
+{
+
+    $array_students = array();
+
+    $context = context_course::instance($courseid);
+
+    $users = get_enrolled_users($context);
+
+    foreach ($users as $student) {
+        array_push($array_students, $student);
+    }
+
+    return $array_students;
+
 }

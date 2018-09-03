@@ -6,7 +6,7 @@
  * @license  http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function () {
+define(['jquery', 'gradereport_gradesgg/Chart', 'gradereport_gradesgg/jquery.dataTables'], function () {
 
     return {
         /**
@@ -20,67 +20,80 @@ define(['jquery'], function () {
                 data.forEach(category => {
                     console.log('cat:');
                     console.log(category);
-                });
-
-                var id = 'graf_177';
-                var items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item n'];
-                var grades = [2, 3.1, 'No calificado', 2.3, 2];
-
-                Highcharts.chart(id, {
-                    chart: {
-                        type: 'bar'
-                    },
-                    title: {
-                        text: ''
-                    },
-                    xAxis: {
-                        categories: items,
-                        title: {
-                            text: 'items'
-                        }
-                    },
-                    yAxis: {
-                        min: 0,
-                        max: 5,
-                        title: {
-                            text: 'grade (scale)',
-                            align: 'medium'
-                        },
-                        labels: {
-                            overflow: 'justify'
-                        }
-                    },
-                    tooltip: {
-                        valueSuffix: ''
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: false
-                            }
-                        }
-                    },
-                    legend: {
-                        layout: 'vertical',
-                        align: 'right',
-                        verticalAlign: 'top',
-                        x: -40,
-                        y: 80,
-                        floating: true,
-                        borderWidth: 1,
-                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                        shadow: true
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    series: [{
-                        name: 'Nota',
-                        data: grades,
-                    }]
+                    var id = 'graf_' + category.id;
+                    console.log(id);
+                    var items = category.items;
+                    var grades = category.grades
+                    ChartInfo(id, items, grades)
                 });
             });
+
+            function ChartInfo(element, items, grades) {
+                Chart.defaults.global.defaultFontFamily = "Lato";
+                Chart.defaults.global.defaultFontSize = 18;
+                Chart.defaults.global.defaultFontColor = "#333";
+                var gradesData = {
+                    label: 'Grades(notas)',
+                    data: grades,
+                    backgroundColor:
+                        '#dcf8c6',
+
+                    borderColor:
+                        '#969696',
+
+                    borderWidth: 2,
+                    hoverBorderWidth: 0
+                };
+
+                var chartOptions = {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.4
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                beginAtZero: true,   // minimum value will be 0.
+                                max: 5
+                            }
+                        }]
+                    },
+                    elements: {
+                        rectangle: {
+                            borderSkipped: 'left',
+                        }
+                    }
+                };
+
+                var barChart = new Chart(element, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: items,
+                        datasets: [gradesData],
+                    },
+                    options: chartOptions
+                });
+            }
         },
+        teacher: function (data) {
+            $("#div_curso").html('');
+            $("#div_curso").fadeIn(1000).append('<table id="tableTotalUsers" class="table"' +
+                ' cellspacing="0" width="100%"><thead> </thead></table>');
+
+            $("#tableTotalUsers").DataTable(data);
+
+            $(document).on('click', '#tableTotalUsers tbody tr td', function () {
+                var pagina = "index.php";
+                var table = $("#tableTotalUsers").DataTable();
+                var colIndex = table.cell(this).index().column;
+
+                if (colIndex <= 3) {
+                    $("#formulario").each(function () {
+                        this.reset;
+                    });
+                    location.href = pagina + location.search + "&userid=" + table.cell(table.row(this).index(), 0).data();
+                }
+            });
+        }
     };
 
 });

@@ -1,0 +1,18 @@
+.container.grafics{
+    background:#FFF8F0;
+    border: 1px solid grey;
+    margin-left: 35px;
+}
+
+#grade{
+    font-size: 20px;
+}
+
+.back{
+    font-size: 20px;
+    margin-bottom: 7px;    
+}
+
+#loading{
+    width: 200px;
+}
