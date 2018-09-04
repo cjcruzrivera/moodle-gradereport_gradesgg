@@ -1,12 +1,12 @@
-/**
- * Index javascript management
+/** 
+ * Index gradesgg javascript management
  * @module amd/src/gradesgg
  * @author Camilo José Cruz rivera
  * @copyright 2018 Camilo José Cruz Rivera <cruz.camilo@correounivalle.edu.co>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'gradereport_gradesgg/Chart', 'gradereport_gradesgg/jquery.dataTables'], function () {
+define(['jquery', 'gradereport_gradesgg/Chart', 'gradereport_gradesgg/jquery.dataTables'], function ($) {
 
     return {
         /**
@@ -16,16 +16,26 @@ define(['jquery', 'gradereport_gradesgg/Chart', 'gradereport_gradesgg/jquery.dat
         student: function (data) {
             $(document).ready(function () {
                 console.log(data);
-
-                data.forEach(category => {
+                var i;
+                for (i = 0; i< data.length; i++) {
+                    var category = data[i];
                     console.log('cat:');
                     console.log(category);
                     var id = 'graf_' + category.id;
                     console.log(id);
                     var items = category.items;
-                    var grades = category.grades
-                    ChartInfo(id, items, grades)
-                });
+                    var grades = category.grades;
+                    ChartInfo(id, items, grades);
+                }
+                // data.forEach(category => {
+                // console.log('cat:');
+                // console.log(category);
+                // var id = 'graf_' + category.id;
+                // console.log(id);
+                // var items = category.items;
+                // var grades = category.grades
+                // ChartInfo(id, items, grades)
+                // });
             });
 
             function ChartInfo(element, items, grades) {
@@ -87,9 +97,6 @@ define(['jquery', 'gradereport_gradesgg/Chart', 'gradereport_gradesgg/jquery.dat
                 var colIndex = table.cell(this).index().column;
 
                 if (colIndex <= 3) {
-                    $("#formulario").each(function () {
-                        this.reset;
-                    });
                     location.href = pagina + location.search + "&userid=" + table.cell(table.row(this).index(), 0).data();
                 }
             });
